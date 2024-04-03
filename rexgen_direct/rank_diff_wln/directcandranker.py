@@ -299,35 +299,26 @@ if __name__ == '__main__':
                             predicted_product = stereo_remove_and_canonicalize(predicted_product)
                         except Exception as e:
                             print(e)
-                            print("\t{} cannot be properly parsed; skip sanitization and assume correct format".format(predicted_product))
+                            print("\t{} cannot be properly parsed; skip sanitization and assume correct format: ".format(predicted_product))
                         #add smiles to full list of products
                         predicted_products += predicted_product + "."
                     #remove period at end of smiles
                     predicted_products = predicted_products[0:len(predicted_products)-1]
-                    #make comparison between expected and predicted product SMILES
-                    if(are_matching_smiles(expected_product, predicted_products)):
-                        correct_prediction = True
                     #save the predicted probability of the row
                     prediction_probability = outcomes[j]["prob"]
                     #save the rank of the prediction
                     rank = outcomes[j]["rank"]
-                    #Write the data to a csv for rank 1 and correct product
-                    if(rank==1):
+                    #Make comparison between expected and predicted product SMILES
+                    if(are_matching_smiles(expected_product, predicted_products)):
                         csv_output = open("output_test.csv", 'a')
                         row = "{},{},{},{},{},{},\n".format(reactants, expected_product, predicted_products, rank, correct_prediction, prediction_probability)
                         csv_output.write(row)
                         csv_output.close()
-                    if(correct_prediction):
-                        csv_output = open("output_test.csv", 'a')
-                        row = "{},{},{},{},{},{},\n".format(reactants, expected_product, predicted_products, rank, correct_prediction, prediction_probability)
-                        csv_output.write(row)
-                        csv_output.close()
-                        #break out of the loop for the current reactant if a correct prediction detected
-                        break
+
                     #when about the finish the final loop, then we know that the correct prediction has not been found
                     if(j == len(outcomes)-1):
                         csv_output = open("output_test.csv", 'a')
-                        row = "{},{},NONE_FOUND,{}_PREDICTIONS_CHECKED,NONE_FOUND,NONE_FOUND,\n".format(reactants, expected_product, len(outcomes))
+                        row = "{},{},N/A,{}_PREDICTIONS_CHECKED,N/A,N/A,\n".format(reactants, expected_product, len(outcomes))
                         csv_output.write(row)
                         csv_output.close()
             except Exception as e:
