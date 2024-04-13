@@ -316,11 +316,11 @@ if __name__ == '__main__':
                         csv_output.close()
 
                     #when about the finish the final loop, then we know that the correct prediction has not been found
-                    if(j == len(outcomes)-1):
-                        csv_output = open("output_test.csv", 'a')
-                        row = "{},{},N/A,{}_PREDICTIONS_CHECKED,N/A,N/A,\n".format(reactants, expected_product, len(outcomes))
-                        csv_output.write(row)
-                        csv_output.close()
+                    #if(j == len(outcomes)-1):
+                        #csv_output = open("output_test.csv", 'a')
+                        #row = "{},{},N/A,{}_PREDICTIONS_CHECKED,N/A,N/A,\n".format(reactants, expected_product, len(outcomes))
+                        #csv_output.write(row)
+                        #csv_output.close()
             except Exception as e:
                 print(e)
                 #skip the test if there is something wrong with gathering the smiles
