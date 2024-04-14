@@ -79,6 +79,53 @@ def are_matching_smiles(smaller_smiles, larger_smiles):
     #when each small smiles molecule has completed looping without returning, then we know that each molecule in the small smiles matches a molecule in the larger smiles
     return(True)
 
+def get_molecular_dict(smiles_string):
+    #convert the smiles string to a mol object
+    mol = Chem.MolFromSmiles(smiles_string)
+    mol = Chem.AddHs(mol)
+    #initiallize a dictionary to store the count of each atom in the molecule
+    smiles_dict = dict()
+    #loop through each atom
+    for atom in mol:
+        #get the atomic symbol for the atom
+        symbol = atom.GetSymbol()
+        #increase the count for the atomic symbol in the molecule
+        try:
+            smiles_dict[symbol] += 1
+        except:
+            smiles_dict[symbol] = 1
+    #return the dictionary of the number of atoms
+    return(smiles_dict)
+        
+def have_matching_molecular_formula(smaller_smiles, larger_smiles):
+    #split the smiles to check the number of molecule
+    smaller_smiles_list = smaller_smiles.split('.')
+    larger_smiles_list = larger_smiles.split('.')
+    #swap the parameters if the names for the smaller and larger smiles dont match (size referring to number of molecules)
+    if(len(smaller_smiles_list) > len(larger_smiles_list)):
+        return(are_matching_smiles(larger_smiles, smaller_smiles))
+    #loop through all molecules of the smaller smiles to ensure that each is present in the larger smiles
+    for small_smi in smaller_smiles_list:
+        #set condition to be set when a match for the small smiles molecule is made (False until found)
+        match_found = False
+        small_smi_dict = get_molecular_dict(small_smi)
+        #small_smi_canon = remove_atom_mapping_numbers(small_smi)
+        #small_smi_canon = stereo_remove_and_canonicalize(small_smi_canon)
+        #loop through each molecule in the larger smiles list to ensure the molecule in the smaller smiles is present within it
+        for large_smi in larger_smiles_list:
+            large_smi_dict = get_molecular_dict(large_smi)
+            #large_smi_canon = remove_atom_mapping_numbers(large_smi)
+            #large_smi_canon = stereo_remove_and_canonicalize(large_smi_canon)
+            #check when small smiles molecule equals large smiles molecule
+            if(small_smi_dict == large_smi_dict):
+                match_found = True
+                break
+        #check to ensure a match was found (if not, then there is no match -> return False)
+        if(not match_found):
+            return(False)
+    #when each small smiles molecule has completed looping without returning, then we know that each molecule in the small smiles matches a molecule in the larger smiles
+    return(True)
+
 
 class DirectCandRanker():
     def __init__(self, hidden_size=hidden_size, depth=depth, core_size=core_size,
@@ -309,7 +356,8 @@ if __name__ == '__main__':
                     #save the rank of the prediction
                     rank = outcomes[j]["rank"]
                     #Make comparison between expected and predicted product SMILES
-                    if(are_matching_smiles(expected_product, predicted_products)):
+                    #if(are_matching_smiles(expected_product, predicted_products)):
+                    if(have_matching_molecular_formula(expected_product, predicted_products)):
                         csv_output = open("output_test.csv", 'a')
                         row = "{},{},{},{},{},{},\n".format(reactants, expected_product, predicted_products, rank, correct_prediction, prediction_probability)
                         csv_output.write(row)
