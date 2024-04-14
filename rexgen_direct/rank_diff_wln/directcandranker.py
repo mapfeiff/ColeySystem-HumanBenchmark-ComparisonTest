@@ -305,7 +305,7 @@ if __name__ == '__main__':
         test_dataframe = pd.read_csv(csv_path, names=["reactants", "products"])
         #Create a csv to add to
         csv_output = open("output_test.csv", 'w')
-        csv_output.write("Reactants,Expected_Products,Predicted_Products,Rank,Comparison,Model_Probability,\n")
+        csv_output.write("ID,Reactants,Expected_Products,Predicted_Products,Rank,Comparison,Model_Probability,\n")
         #loop through each row in the csv compare the reditions of the program
         for i in range(len(test_dataframe)):
             print("Testing case {}/{}".format(i+1, len(test_dataframe)))
@@ -361,14 +361,14 @@ if __name__ == '__main__':
                     if(have_matching_molecular_formula(expected_product, predicted_products)):
                         correct_prediction = are_matching_smiles(expected_product, predicted_products)
                         csv_output = open("output_test.csv", 'a')
-                        row = "{},{},{},{},{},{},\n".format(reactants, expected_product, predicted_products, rank, correct_prediction, prediction_probability)
+                        row = "{},{},{},{},{},{},{},\n".format(i, reactants, expected_product, predicted_products, rank, correct_prediction, prediction_probability)
                         csv_output.write(row)
                         csv_output.close()
 
                     #when about the finish the final loop, then we know that the correct prediction has not been found
                     #if(j == len(outcomes)-1):
                         #csv_output = open("output_test.csv", 'a')
-                        #row = "{},{},N/A,{}_PREDICTIONS_CHECKED,N/A,N/A,\n".format(reactants, expected_product, len(outcomes))
+                        #row = "{},{},{},N/A,{}_PREDICTIONS_CHECKED,N/A,N/A,\n".format(i, reactants, expected_product, len(outcomes))
                         #csv_output.write(row)
                         #csv_output.close()
             except Exception as e:
@@ -377,7 +377,7 @@ if __name__ == '__main__':
                 reactants = test_dataframe["reactants"][i]
                 print("\t{} cannot be properly tested; skipping test and replacing output with ERROR".format(reactants))
                 csv_output = open("output_test.csv", 'a')
-                row = "{},ERROR,ERROR,ERROR,ERROR,ERROR,\n".format(reactants)
+                row = "{},{},ERROR,ERROR,ERROR,ERROR,ERROR,\n".format(i, reactants)
                 csv_output.write(row)
                 csv_output.write(row)
                 csv_output.close()
