@@ -81,12 +81,13 @@ def are_matching_smiles(smaller_smiles, larger_smiles):
 
 def get_molecular_dict(smiles_string):
     #convert the smiles string to a mol object
-    mol = Chem.MolFromSmiles(smiles_string)
+    mol = Chem.MolFromSmiles(smiles_string, sanitize=False)
+    mol.UpdatePropertyCache(strict=False)
     mol = Chem.AddHs(mol)
     #initiallize a dictionary to store the count of each atom in the molecule
     smiles_dict = dict()
     #loop through each atom
-    for atom in mol:
+    for atom in mol.GetAtoms():
         #get the atomic symbol for the atom
         symbol = atom.GetSymbol()
         #increase the count for the atomic symbol in the molecule
@@ -108,14 +109,14 @@ def have_matching_molecular_formula(smaller_smiles, larger_smiles):
     for small_smi in smaller_smiles_list:
         #set condition to be set when a match for the small smiles molecule is made (False until found)
         match_found = False
-        small_smi_dict = get_molecular_dict(small_smi)
-        #small_smi_canon = remove_atom_mapping_numbers(small_smi)
-        #small_smi_canon = stereo_remove_and_canonicalize(small_smi_canon)
+        small_smi_canon = remove_atom_mapping_numbers(small_smi)
+        small_smi_canon = stereo_remove_and_canonicalize(small_smi_canon)
+        small_smi_dict = get_molecular_dict(small_smi_canon)
         #loop through each molecule in the larger smiles list to ensure the molecule in the smaller smiles is present within it
         for large_smi in larger_smiles_list:
-            large_smi_dict = get_molecular_dict(large_smi)
-            #large_smi_canon = remove_atom_mapping_numbers(large_smi)
-            #large_smi_canon = stereo_remove_and_canonicalize(large_smi_canon)
+            large_smi_canon = remove_atom_mapping_numbers(large_smi)
+            large_smi_canon = stereo_remove_and_canonicalize(large_smi_canon)
+            large_smi_dict = get_molecular_dict(large_smi_canon)
             #check when small smiles molecule equals large smiles molecule
             if(small_smi_dict == large_smi_dict):
                 match_found = True
@@ -358,6 +359,7 @@ if __name__ == '__main__':
                     #Make comparison between expected and predicted product SMILES
                     #if(are_matching_smiles(expected_product, predicted_products)):
                     if(have_matching_molecular_formula(expected_product, predicted_products)):
+                        correct_prediction = are_matching_smiles(expected_product, predicted_products)
                         csv_output = open("output_test.csv", 'a')
                         row = "{},{},{},{},{},{},\n".format(reactants, expected_product, predicted_products, rank, correct_prediction, prediction_probability)
                         csv_output.write(row)
